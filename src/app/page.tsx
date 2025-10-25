@@ -1,103 +1,155 @@
-import Image from "next/image";
+'use client';
+
+import { useEffect, useCallback } from 'react';
+import { useSudoku } from '@/hooks/useSudoku';
+import { useTheme } from '@/hooks/useTheme';
+import { Board } from '@/components/sudoku/Board';
+import { Controls } from '@/components/sudoku/Controls';
+import { NumberPad } from '@/components/sudoku/NumberPad';
+import { Timer } from '@/components/sudoku/Timer';
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const {
+    board,
+    selectedCell,
+    setSelectedCell,
+    difficulty,
+    isNotesMode,
+    setIsNotesMode,
+    elapsedTime,
+    isComplete,
+    newGame,
+    setCellValue,
+    undo,
+    redo,
+    clearCell,
+    getHint,
+    canUndo,
+    canRedo,
+    getConflicts,
+  } = useSudoku();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const { theme, toggleTheme } = useTheme();
+
+  // Keyboard controls
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!selectedCell) return;
+
+      // Number input
+      if (e.key >= '1' && e.key <= '9') {
+        e.preventDefault();
+        setCellValue(selectedCell.row, selectedCell.col, parseInt(e.key));
+      }
+
+      // Clear cell
+      if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
+        e.preventDefault();
+        setCellValue(selectedCell.row, selectedCell.col, null);
+      }
+
+      // Arrow navigation
+      if (e.key.startsWith('Arrow')) {
+        e.preventDefault();
+        let newRow = selectedCell.row;
+        let newCol = selectedCell.col;
+
+        if (e.key === 'ArrowUp') newRow = Math.max(0, newRow - 1);
+        if (e.key === 'ArrowDown') newRow = Math.min(8, newRow + 1);
+        if (e.key === 'ArrowLeft') newCol = Math.max(0, newCol - 1);
+        if (e.key === 'ArrowRight') newCol = Math.min(8, newCol + 1);
+
+        setSelectedCell({ row: newRow, col: newCol });
+      }
+
+      // Undo/Redo
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'z') {
+          e.preventDefault();
+          undo();
+        }
+        if (e.key === 'y') {
+          e.preventDefault();
+          redo();
+        }
+      }
+
+      // Toggle notes mode
+      if (e.key === 'n' || e.key === 'N') {
+        e.preventDefault();
+        setIsNotesMode(!isNotesMode);
+      }
+
+      // Hint
+      if (e.key === 'h' || e.key === 'H') {
+        e.preventDefault();
+        getHint();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedCell, setSelectedCell, setCellValue, undo, redo, isNotesMode, setIsNotesMode, getHint]);
+
+  const handleNumberClick = useCallback((num: number) => {
+    if (selectedCell) {
+      setCellValue(selectedCell.row, selectedCell.col, num);
+    }
+  }, [selectedCell, setCellValue]);
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
+      <div className="w-full max-w-[500px] space-y-6">
+        {/* Header */}
+        <div className="text-center space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight">Sudoku</h1>
+          <p className="text-sm text-[var(--foreground)] opacity-50">
+            Clean. Minimal. No ads.
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Timer */}
+        <Timer 
+          elapsedTime={elapsedTime} 
+          difficulty={difficulty} 
+          isComplete={isComplete}
+        />
+
+        {/* Game Board */}
+        <Board
+          board={board}
+          selectedCell={selectedCell}
+          onCellClick={(row, col) => setSelectedCell({ row, col })}
+          getConflicts={getConflicts}
+        />
+
+        {/* Number Pad */}
+        <NumberPad 
+          onNumberClick={handleNumberClick}
+          isNotesMode={isNotesMode}
+        />
+
+        {/* Controls */}
+        <Controls
+          onUndo={undo}
+          onRedo={redo}
+          onClear={clearCell}
+          onHint={getHint}
+          onNewGame={newGame}
+          canUndo={canUndo}
+          canRedo={canRedo}
+          isNotesMode={isNotesMode}
+          onToggleNotes={() => setIsNotesMode(!isNotesMode)}
+          difficulty={difficulty}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+        />
+
+        {/* Footer */}
+        <div className="text-center text-xs text-[var(--foreground)] opacity-30 pt-4">
+          Use arrow keys to navigate • 1-9 to fill • N for notes • H for hint
+        </div>
+      </div>
     </div>
   );
 }
