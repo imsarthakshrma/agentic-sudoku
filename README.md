@@ -1,36 +1,147 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sudoku
+
+A clean, minimal, and ad-free Sudoku game built with Next.js 15 and TypeScript.
+
+## Features
+
+- 🎮 **4 Difficulty Levels**: Easy, Medium, Hard, and Expert
+- 🎨 **Light & Dark Themes**: Beautiful color schemes for both modes
+- ⌨️ **Full Keyboard Support**: Play entirely with your keyboard
+- 📝 **Notes Mode**: Add pencil marks to help solve puzzles
+- 💡 **Hint System**: Get help when you're stuck
+- ↩️ **Undo/Redo**: Unlimited undo and redo functionality
+- ⏱️ **Timer**: Track how long it takes to solve each puzzle
+- ⏸️ **Pause**: Pause the game anytime
+- ✅ **Conflict Detection**: Automatically highlights invalid moves
+- 🎯 **Cell Highlighting**: Highlights related cells, rows, columns, and boxes
+- 🚫 **No Ads**: Clean, distraction-free experience
+
+## Tech Stack
+
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Icons**: Lucide React
+- **Font**: Inter (Google Fonts)
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+ installed
+- npm, yarn, pnpm, or bun
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd sudoku
+```
+
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
+
+3. Run the development server:
 ```bash
 npm run dev
 # or
 yarn dev
 # or
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How to Play
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Keyboard Controls
 
-## Learn More
+- **Arrow Keys**: Navigate between cells
+- **1-9**: Enter a number in the selected cell
+- **Delete/Backspace**: Clear the selected cell
+- **N**: Toggle notes mode
+- **H**: Get a hint for the selected cell
+- **Ctrl+Z**: Undo
+- **Ctrl+Y**: Redo
+- **Space**: Pause/Resume
 
-To learn more about Next.js, take a look at the following resources:
+### Mouse Controls
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Click any cell to select it
+- Click number pad buttons to enter numbers
+- Use control buttons for undo, redo, hints, etc.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+src/
+├── app/                    # Next.js app directory
+│   ├── globals.css        # Global styles and CSS variables
+│   ├── layout.tsx         # Root layout with theme provider
+│   └── page.tsx           # Main game page
+├── components/
+│   └── sudoku/            # Sudoku game components
+│       ├── Board.tsx      # Game board grid
+│       ├── Cell.tsx       # Individual cell component
+│       ├── Controls.tsx   # Control buttons
+│       ├── NumberPad.tsx  # Number input pad
+│       └── Timer.tsx      # Game timer
+├── hooks/
+│   ├── useSudoku.ts       # Main game logic hook
+│   └── useTheme.ts        # Theme management hook
+└── lib/
+    └── sudoku/            # Sudoku logic
+        ├── generator.ts   # Puzzle generation
+        ├── solver.ts      # Puzzle solving algorithms
+        ├── validator.ts   # Move validation
+        └── types.ts       # TypeScript types
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Features in Detail
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Puzzle Generation
+- Generates valid, solvable puzzles using backtracking algorithm
+- Ensures unique solutions for Hard and Expert difficulties
+- Validates puzzle quality before presenting to player
+
+### Theme System
+- Automatic dark mode detection
+- Manual theme toggle
+- Persistent theme preference in localStorage
+- Custom CSS variables for easy theming
+
+### Game State Management
+- Complete undo/redo history
+- Board state persistence
+- Conflict detection in real-time
+- Completion detection
+
+## Building for Production
+
+```bash
+npm run build
+npm start
+```
+
+## Deployment
+
+This app can be deployed to any platform that supports Next.js:
+
+- **Vercel**: One-click deployment
+- **Netlify**: Connect your Git repository
+- **Docker**: Use the included Dockerfile (if available)
+
+## License
+
+MIT
+
+## Author
+
+Built with ❤️ by Sarthak Sharma
